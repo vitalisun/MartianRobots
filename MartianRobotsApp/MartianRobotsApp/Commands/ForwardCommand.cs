@@ -11,11 +11,11 @@ internal class ForwardCommand : ICommand
 {
 
 
-    public void Execute(Robot robot, Grid grid)
+    public void Execute(Robot robot)
     {
-        var newCoord = new Coordinate(robot.Coordinate.X, robot.Coordinate.Y);
+        var newCoord = new Coordinate(robot.Position.X, robot.Position.Y);
 
-        switch (robot.DirectionEnum)
+        switch (robot.Direction)
         {
             case DirectionEnum.N:
                 newCoord.Y++;
@@ -31,17 +31,6 @@ internal class ForwardCommand : ICommand
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
-        }
-
-        // If coordinate is not scented, move the robot.
-        if (!grid.IsScented(newCoord))
-            robot.Coordinate = newCoord;
-
-        // If coordinate is out of grid robot is lost
-        if (grid.IsOutOfGrid(newCoord))
-        {
-            grid.AddScented(newCoord);
-            robot.IsLost = true;
         }
     }
 }

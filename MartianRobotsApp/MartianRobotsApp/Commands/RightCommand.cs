@@ -1,5 +1,6 @@
 ﻿using MartianRobotsApp.Entities;
 using MartianRobotsApp.Enums;
+using MartianRobotsApp.Models;
 
 namespace MartianRobotsApp.Commands;
 
@@ -8,24 +9,30 @@ namespace MartianRobotsApp.Commands;
 /// </summary>
 internal class RightCommand : ICommand
 {
-    public void Execute(Robot robot, Grid grid)
+    public void Execute(Robot robot)
     {
-        switch (robot.DirectionEnum)
+        DirectionEnum newDirection;
+
+        switch (robot.Direction)
         {
             case DirectionEnum.N:
-                robot.DirectionEnum = DirectionEnum.E;
+                newDirection = DirectionEnum.E;
                 break;
             case DirectionEnum.E:
-                robot.DirectionEnum = DirectionEnum.S;
+                newDirection = DirectionEnum.S;
                 break;
             case DirectionEnum.S:
-                robot.DirectionEnum = DirectionEnum.W;
+                newDirection = DirectionEnum.W;
                 break;
             case DirectionEnum.W:
-                robot.DirectionEnum = DirectionEnum.N;
+                newDirection = DirectionEnum.N;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
+
         }
+
+        robot.UpdateRobot(new UpdateRobotRequest
+            { Position = robot.Position, Direction = newDirection, IsLost = robot.IsLost });
     }
 }

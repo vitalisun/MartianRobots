@@ -9,5 +9,5 @@ namespace MartianRobotsApp.Commands;
 
 internal interface ICommand
 {
-    void Execute(Robot robot, Grid grid);
+    void Execute(Robot robot);
 }
