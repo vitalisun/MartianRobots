@@ -4,44 +4,29 @@ using MartianRobotsApp.Models;
 
 namespace MartianRobotsApp.Services;
 
-internal class ParserService : IParserService
+public class ParserService : IParserService
 {
     public Coordinate GetGridCoordinates(string input)
     {
         var parts = input.Trim().Split(" ");
         
-        if (parts.Length != 2)
-            throw new ArgumentException("Invalid input. Please enter in following format: 'x y'");
-
-        if (!int.TryParse(parts[0], out int x) || !int.TryParse(parts[1], out int y))
-            throw new ArgumentException("Invalid input. Please enter in following format: 'x y'");
-
-        return new Coordinate(x, y);
+        return new Coordinate(int.Parse(parts[0]), int.Parse(parts[1]));
     }
 
-    public SpawnInfo GetSpawnInfo(string input)
+    public SpawnModel GetSpawnInfo(string input)
     {
         var parts = input.Trim().Split(" ");
 
-        if (parts.Length != 3)
-            throw new ArgumentException("Invalid input. Please enter in following format: 'x y direction'");
-
-        if (!int.TryParse(parts[0], out int x) || !int.TryParse(parts[1], out int y))
-            throw new ArgumentException("Invalid input. Please enter in following format: 'x y direction'");
-
-        if (!Enum.TryParse(parts[2], out DirectionEnum direction))
-            throw new ArgumentException("Invalid input. Please enter in following format: 'x y direction'");
-
-        return new SpawnInfo
+        return new SpawnModel
         {
-            Position = new Coordinate(x, y),
-            DirectionEnum = direction
+            Position = new Coordinate(int.Parse(parts[0]), int.Parse(parts[1])),
+            Direction = Enum.Parse<DirectionEnum>(parts[2])
         };
     }
 
-    public IEnumerable<ICommand> GetCommands(string input)
+    public List<ICommand> GetCommands(string input)
     {
-        var commands = new List<ICommand>();
+        List<ICommand> commands = new();
 
         foreach (var ch in input.Trim().ToUpper())
         {
@@ -49,8 +34,7 @@ internal class ParserService : IParserService
             {
                 'L' => new LeftCommand(),
                 'R' => new RightCommand(),
-                'F' => new ForwardCommand(),
-                _ => throw new ArgumentException("Invalid input. Please enter in following format: 'LRF'")
+                'F' => new ForwardCommand()
             };
 
             commands.Add(command);
