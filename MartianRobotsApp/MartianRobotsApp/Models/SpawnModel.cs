@@ -2,9 +2,8 @@
 
 namespace MartianRobotsApp.Models;
 
-internal class UpdateRobotRequest
+public class SpawnModel
 {
     public Coordinate Position { get; set; }
     public DirectionEnum Direction { get; set; }
-    public bool IsLost { get; set; }
 }

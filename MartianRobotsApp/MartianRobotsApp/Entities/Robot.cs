@@ -1,30 +1,62 @@
-﻿using MartianRobotsApp.Enums;
+﻿using MartianRobotsApp.Commands;
+using MartianRobotsApp.Enums;
 using MartianRobotsApp.Models;
 
 namespace MartianRobotsApp.Entities;
 
-internal class Robot
+public class Robot
 {
-    public Coordinate Position { get; private set; }
-    public DirectionEnum Direction { get; private set; }
-    public bool IsLost { get; private set; }
+    private readonly Grid _grid;
 
-    public Robot(SpawnInfo spawnInfo)
+    public List<ICommand> Commands { get; set; }
+
+    public RobotStateModel RobotState { get; private set; }
+
+    public Robot(Grid grid, SpawnModel spawnModel, List<ICommand> commands)
     {
-        Position = spawnInfo.Position;
-        Direction = spawnInfo.DirectionEnum;
-        IsLost = false;
+        _grid = grid;
+        RobotState = new RobotStateModel
+        {
+            Position = spawnModel.Position,
+            Direction = spawnModel.Direction,
+            IsLost = false
+        };
+        Commands = commands;
     }
 
-    public void UpdateRobot(UpdateRobotRequest updateRobotRequest)
+    public void ProcessCommands()
     {
-        Position = updateRobotRequest.Position;
-        Direction = updateRobotRequest.Direction;
-        IsLost = updateRobotRequest.IsLost;
+        foreach (var command in Commands)
+        {
+            if (RobotState.IsLost)
+                break;
+
+            command.Execute(this);
+        }
     }
 
-    public override string ToString()
+    public RobotStateModel GetState()
     {
-        return $"{Position.X} {Position.Y} {Direction} {(IsLost ? "LOST" : "")}";
+        return RobotState;
+    }
+
+    public void UpdateState(UpdateRequest updateRequest)
+    {
+        // if new position is out of grid and not scented, add scent and set robot as lost
+        if (_grid.IsOutOfGrid(updateRequest.Position) && !_grid.IsScented(updateRequest.Position))
+        {
+            _grid.AddScented(RobotState.Position);
+            RobotState.IsLost = true;
+        }
+        // if new position is within grid and not scented, update robot state
+        else if (!_grid.IsOutOfGrid(updateRequest.Position) && !_grid.IsScented(updateRequest.Position))
+        {
+            RobotState = new RobotStateModel
+            {
+                Position = updateRequest.Position,
+                Direction = updateRequest.Direction,
+                IsLost = false
+            };
+        }
     }
 }

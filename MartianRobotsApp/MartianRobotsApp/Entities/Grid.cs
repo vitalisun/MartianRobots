@@ -1,16 +1,41 @@
 ﻿using MartianRobotsApp.Models;
+using MartianRobotsApp.Services;
 
 namespace MartianRobotsApp.Entities;
 
-internal class Grid
+public class Grid
 {
     private readonly Coordinate _topRight;
+    private readonly IParserService _parserService;
+    private readonly List<Coordinate> _scentedPositions = new();
 
-    private IEnumerable<Coordinate> _scentedPositions = Enumerable.Empty<Coordinate>();
+    public List<Robot> Robots { get; set; } = new();
 
-    public Grid(Coordinate topRight)
+    public Grid(Coordinate topRight, IParserService parserService)
     {
         _topRight = topRight;
+        _parserService = parserService;
+    }
+
+    public void SpawnRobots(List<RobotInputModel?> robotInputs)
+    {
+        Robots = robotInputs.Select(robotInput =>
+                new Robot(this, 
+                    _parserService.GetSpawnInfo(robotInput.SpawnInput), 
+                    _parserService.GetCommands(robotInput.InstructionsInput)))
+            .ToList();
+    }
+
+    public void ProcessCommands()
+    {
+        foreach (var robot in Robots) 
+            robot.ProcessCommands();
+    }
+
+    public void WriteRobotsState()
+    {
+        foreach (var robot in Robots) 
+            Console.WriteLine(robot.GetState());
     }
 
     public bool IsOutOfGrid(Coordinate pos)
@@ -21,11 +46,14 @@ internal class Grid
 
     public void AddScented(Coordinate pos)
     {
-        _scentedPositions = _scentedPositions.Append(pos);
+        _scentedPositions.Add(pos);
     }
 
     public bool IsScented(Coordinate pos)
     {
-        return _scentedPositions.Contains(pos);
+        if (_scentedPositions.Any(scentedPos => scentedPos.X == pos.X && scentedPos.Y == pos.Y))
+            return true;
+
+        return false;
     }
 }

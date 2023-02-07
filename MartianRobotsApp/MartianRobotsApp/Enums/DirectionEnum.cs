@@ -1,6 +1,6 @@
 ﻿namespace MartianRobotsApp.Enums;
 
-internal enum DirectionEnum
+public enum DirectionEnum
 {
     N,
     E,
