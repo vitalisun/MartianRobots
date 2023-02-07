@@ -7,15 +7,13 @@ namespace MartianRobotsApp.Commands;
 /// <summary>
 ///     Represents a command to move the robot forward.
 /// </summary>
-internal class ForwardCommand : ICommand
+public class ForwardCommand : ICommand
 {
-
-
     public void Execute(Robot robot)
     {
-        var newCoord = new Coordinate(robot.Position.X, robot.Position.Y);
+        var newCoord = new Coordinate(robot.RobotState.Position.X, robot.RobotState.Position.Y);
 
-        switch (robot.Direction)
+        switch (robot.RobotState.Direction)
         {
             case DirectionEnum.N:
                 newCoord.Y++;
@@ -29,8 +27,9 @@ internal class ForwardCommand : ICommand
             case DirectionEnum.W:
                 newCoord.X--;
                 break;
-            default:
-                throw new ArgumentOutOfRangeException();
         }
+
+        robot.UpdateState(new UpdateRequest
+        { Position = newCoord, Direction = robot.RobotState.Direction });
     }
 }

@@ -7,13 +7,13 @@ namespace MartianRobotsApp.Commands;
 /// <summary>
 ///     Represents a command to turn the robot right.
 /// </summary>
-internal class RightCommand : ICommand
+public class RightCommand : ICommand
 {
     public void Execute(Robot robot)
     {
         DirectionEnum newDirection;
 
-        switch (robot.Direction)
+        switch (robot.RobotState.Direction)
         {
             case DirectionEnum.N:
                 newDirection = DirectionEnum.E;
@@ -28,11 +28,11 @@ internal class RightCommand : ICommand
                 newDirection = DirectionEnum.N;
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
-
+                newDirection = DirectionEnum.E;
+                break;
         }
 
-        robot.UpdateRobot(new UpdateRobotRequest
-            { Position = robot.Position, Direction = newDirection, IsLost = robot.IsLost });
+        robot.UpdateState(new UpdateRequest
+        { Position = robot.RobotState.Position, Direction = newDirection });
     }
 }
